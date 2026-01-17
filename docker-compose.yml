@@ -1,6 +1,0 @@
-services:
-  adminapi:
-    image: ${DOCKER_REGISTRY-}adminapi
-    build:
-      context: .
-      dockerfile: AdminApi/Dockerfile

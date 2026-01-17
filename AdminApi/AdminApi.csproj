@@ -17,8 +17,4 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include=".github\workflows\deploy-api.yml" />
-  </ItemGroup>
-
 </Project>
