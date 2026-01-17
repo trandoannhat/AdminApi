@@ -14,49 +14,37 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t adminapi:latest .
+        run: docker build -t nhatdev-api:latest .
 
       - name: Save Docker image
-        run: docker save adminapi:latest | gzip > api.tar.gz
-
-      - name: Test SSH connection
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            whoami
-            ls -la /home/deploy/apps/api
+        run: docker save nhatdev-api:latest | gzip > api.tar.gz
 
       - name: Copy image to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
+          username: deploy
+          port: 22
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: api.tar.gz
-          target: /home/deploy/apps/api
-          overwrite: true
+          source: "api.tar.gz"
+          target: "/home/deploy/apps/api"
 
-      - name: Run container on VPS
+      - name: Run API on VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
+          username: deploy
+          port: 22
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/deploy/apps/api
             docker load < api.tar.gz
 
-            docker stop adminapi || true
-            docker rm adminapi || true
+            docker stop nhatdev-api || true
+            docker rm nhatdev-api || true
 
             docker run -d \
-              --name adminapi \
+              --name nhatdev-api \
               -p 127.0.0.1:5000:5000 \
               --restart unless-stopped \
-              adminapi:latest
+              nhatdev-api:latest
