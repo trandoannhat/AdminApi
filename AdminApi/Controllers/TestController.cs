@@ -10,6 +10,6 @@ public class AdminController : ControllerBase
     [HttpGet("dashboard")]
     public IActionResult Dashboard()
     {
-        return Ok("ADMIN OK");
+        return Ok("ADMIN OK đã ngon");
     }
 }
