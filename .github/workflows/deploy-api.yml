@@ -26,8 +26,9 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           port: 24700
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: api.tar.gz
-          target: /home/deploy/apps/api
+          source: "api.tar.gz"
+          target: "/home/deploy/apps/api"
+          strip_components: 0
 
       - name: Run API on VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -37,14 +38,22 @@ jobs:
           port: 24700
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            mkdir -p /home/deploy/apps/api
             cd /home/deploy/apps/api
-            docker load < api.tar.gz
 
+            # Kiểm tra và load image
+            if [ -f "api.tar.gz" ]; then
+              docker load < api.tar.gz
+              rm api.tar.gz
+            fi
+
+            # Dọn dẹp container cũ
             docker stop nhatdev-api || true
             docker rm nhatdev-api || true
 
+            # Chạy container mới
             docker run -d \
               --name nhatdev-api \
-              -p 127.0.0.1:5000:5000 \
+              -p 5000:5000 \
               --restart unless-stopped \
               nhatdev-api:latest
