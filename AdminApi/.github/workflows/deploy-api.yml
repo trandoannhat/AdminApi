@@ -10,43 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build Docker image
-      run: |
-        docker build -t nhatdev-api:latest .
+      - name: Build Docker image
+        run: docker build -t nhatdev-api:latest .
 
-    - name: Save Docker image
-      run: |
-        docker save nhatdev-api:latest | gzip > api.tar.gz
+      - name: Save Docker image
+        run: docker save nhatdev-api:latest | gzip > api.tar.gz
 
-    - name: Copy image to VPS
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USER }}
-        port: ${{ secrets.VPS_PORT }}
-        key: ${{ secrets.VPS_SSH_KEY }}
-        source: "api.tar.gz"
-        target: "/home/deploy/apps/api"
+      - name: Copy image to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "api.tar.gz"
+          target: "/home/deploy/apps/api"
 
-    - name: Deploy on VPS
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USER }}
-        port: ${{ secrets.VPS_PORT }}
-        key: ${{ secrets.VPS_SSH_KEY }}
-        script: |
-          cd /home/deploy/apps/api
-          docker load < api.tar.gz
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/deploy/apps/api
+            docker load < api.tar.gz
 
-          docker stop nhatdev-api || true
-          docker rm nhatdev-api || true
+            docker stop nhatdev-api || true
+            docker rm nhatdev-api || true
 
-          docker run -d \
-            --name nhatdev-api \
-            -p 127.0.0.1:5000:5000 \
-            --restart unless-stopped \
-            nhatdev-api:latest
+            docker run -d \
+              --name nhatdev-api \
+              -p 127.0.0.1:5000:5000 \
+              --restart unless-stopped \
+              nhatdev-api:latest
