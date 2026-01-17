@@ -24,17 +24,17 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
+          port: 24700
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "api.tar.gz"
-          target: "/home/deploy/apps/api"
+          source: api.tar.gz
+          target: /home/deploy/apps/api
 
       - name: Run API on VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
+          port: 24700
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/deploy/apps/api
