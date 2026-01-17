@@ -3,8 +3,8 @@
   <Folder Name="/.github/workflows/">
     <File Path="AdminApi/.github/workflows/deploy-api.yml" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Dockerfile" />
+  </Folder>
   <Project Path="AdminApi/AdminApi.csproj" />
-  <Project Path="docker-compose.dcproj">
-    <Build />
-  </Project>
 </Solution>
