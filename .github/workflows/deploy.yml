@@ -10,14 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t adminapi:latest .
 
       - name: Save Docker image
-        run: docker save adminapi:latest | gzip > adminapi.tar.gz
+        run: docker save adminapi:latest | gzip > api.tar.gz
+
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            whoami
+            ls -la /home/deploy/apps/api
 
       - name: Copy image to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -26,10 +37,11 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "adminapi.tar.gz"
-          target: "/home/deploy/apps/api"
+          source: api.tar.gz
+          target: /home/deploy/apps/api
+          overwrite: true
 
-      - name: Deploy on VPS
+      - name: Run container on VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -37,10 +49,8 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            mkdir -p /home/deploy/apps/api
             cd /home/deploy/apps/api
-
-            docker load < adminapi.tar.gz
+            docker load < api.tar.gz
 
             docker stop adminapi || true
             docker rm adminapi || true
